@@ -1,0 +1,25 @@
+{
+  "name": "oids",
+  "version": "0.0.1",
+  "description": "Oids",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "4.17.3",
+    "socket.io": "^4.5.0"
+  },
+  "engines": {
+    "node": "16.14.2"
+  },
+  "repository": {
+    "url": "https://glitch.com/edit/#!/oids"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "glitch",
+    "express"
+  ]
+}
