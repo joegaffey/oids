@@ -70,10 +70,13 @@ const Ship = function (world, xx, yy, width, height) {
   const fireForce = 0.02;  
   const cooldown = 150;
   let lastShot = Date.now();
+  
   ship.shoot = (world) => {
     if (Date.now() - lastShot < cooldown) {
       return;
     }
+    
+    audio.play("shoot");
     
     // move the bullet away from the player a bit
     const {x: bx, y: by} = ship.position;
@@ -87,6 +90,8 @@ const Ship = function (world, xx, yy, width, height) {
         render: {fillStyle: "yellow"},
       },
     );
+    bullet.label = "bullet";
+        
     bullets.push(bullet);
     Matter.Composite.add(ship.world, bullet);
     Matter.Body.applyForce(

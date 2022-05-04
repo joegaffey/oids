@@ -1,0 +1,11 @@
+<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+ <!-- Created with SVG-edit - https://github.com/SVG-Edit/svgedit-->
+ <g class="layer">
+  <title>Layer 1</title>
+  <g class="layer" id="svg_1">
+   <circle cx="15" cy="15" fill="red" id="svg_2" r="15"/>
+   <circle cx="15" cy="15" fill="orange" id="svg_3" r="12"/>
+   <circle cx="15" cy="15" fill="yellow" id="svg_4" r="8"/>
+  </g>
+ </g>
+</svg>

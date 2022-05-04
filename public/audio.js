@@ -4,37 +4,48 @@ const audio = {};
 audio.context = new AudioContext();
 
 //https://sfxr.me/#7BMHBGQz2SDrJkWVcTT5NR57VkeK89oP9azXS3qCUCFGts7TjYuJiuGGuJ4HD8FVb1HVQZ8JJeoAqsnGRHT28hhZE2t3ykwofwKBMMKzuh21hfMASyhAF81VH
+// Alt rocket 
+
+//https://sfxr.me/#57uBnWac5Rm6wd7SPKxVKC2PvcLVeRGRdyAC5szhErMUAtkGuet3Df4b52yenphXojG65cM79npuysMzw5GBcjaZQVZE3WcnVxZuxuCqeg7bMB2KU3CeUUoHZ
+const shoot = new Audio(assets.path + "laserShoot.wav");
+shoot.volume = 0.15;
+
+const explode = new Audio(assets.path + "explosion.wav");
+shoot.volume = 0.25;
 
 audio.sounds = {
-    rocket: { 
-      isPlaying: false, 
-      play: (pitch, volume) => {
-        rocket(volume * 0.1);
-        noise.start();
-      },
-      stop: () => {
-        noise.stop();
-      }
-  } 
+  rocket: { 
+    loop: true,
+    play: (pitch, volume) => {
+      rocket(volume * 0.1);
+      noise.start();
+    },
+    stop: () => {
+      noise.stop();
+    }
+  },
+  shoot: { play: () => { shoot.play(); }},
+  explode: { play: () => { explode.play(); }}
 };
 
 audio.play = function (sound, pitch, volume) {
-  if(!audio.sounds[sound].isPlaying) {
+  if(!audio.sounds[sound].loop || !audio.sounds[sound].isPlaying) {
     audio.sounds[sound].isPlaying = true;
     audio.sounds[sound].play(pitch, volume);
   }
 };
 
 audio.stop = function (sound) { 
-  if(audio.sounds[sound].isPlaying) {
-    audio.sounds[sound].stop();
+  if(audio.sounds[sound].loop && audio.sounds[sound].isPlaying) {
+    if(audio.sounds[sound].stop)
+      audio.sounds[sound].stop();
     audio.sounds[sound].isPlaying = false;
   }
 }
 
 function rocket(gain) {
   noise = make_buffer(fill_hihat, {});
-  noise.loop = false;
+  noise.loop = true;
 
   var filter1 = audio.context.createBiquadFilter();
   filter1.type = "bandpass";
