@@ -5,6 +5,7 @@ import Ship from './ship.js';
 import Stars from './stars.js';
 import asteroids from './asteroids.js';
 import Utils from './utils.js';
+import audio from './audio.js';
 
 // https://blog.bullgare.com/2019/03/simple-way-to-detect-browsers-fps-via-js/
 let fps;
@@ -66,6 +67,7 @@ for(let i = 0; i < 20; i++) {
     points, 
     { frictionAir: settings.FICTION_AIR, angle: Math.random() * Math.PI }//, render: { sprite: { texture: assets.path + 'lunar.webp', xScale: 0.1, yScale: 0.1 }}} 
   );
+  body.label = "oid";
   body.points = points;
   // console.log(body)
   asteroidBodies.push(body);
@@ -218,4 +220,39 @@ Events.on(render, 'afterRender', () => {
     ctx.drawImage(burnImg, -25, -15, 10, 10);
     ctx.restore();
   } 
+  
+  updateExplosions();
 });
+
+////////////////////////////////////////////////////////////////
+
+const explosions = [];
+const expImg = new Image();
+expImg.src = 'fireball.svg';
+
+
+function updateExplosions() {
+  explosions.forEach((e, i) => {
+    ctx.drawImage(expImg, e.x, e.y, e.size * 10, e.size * 10);
+    explosions[i].size--;
+    if(explosions[i].size < 1)
+      explosions.splice(i);
+  });
+}
+
+Events.on(engine, 'collisionStart', (e) => {
+  e.pairs.forEach((pair) => {
+    if(pair.bodyA.label === 'bullet' && pair.bodyB.label === 'oid') {
+      exlodeBody(pair.bodyA);
+    }
+    else if(pair.bodyA.label === 'oid' && pair.bodyB.label === 'bullet') {
+      exlodeBody(pair.bodyB);
+    }
+  });
+});
+
+function exlodeBody(body) {
+  explosions.push({ x: body.position.x - render.bounds.min.x, y: body.position.y - render.bounds.min.y, size: 2 + Math.ceil(Math.random() * 8) })
+  Composite.remove(engine.world, body);
+  audio.play("explode");
+}

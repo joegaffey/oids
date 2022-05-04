@@ -90,6 +90,8 @@ const Ship = function (world, xx, yy, width, height) {
         render: {fillStyle: "yellow"},
       },
     );
+    bullet.label = "bullet";
+        
     bullets.push(bullet);
     Matter.Composite.add(ship.world, bullet);
     Matter.Body.applyForce(

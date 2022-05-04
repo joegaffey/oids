@@ -10,6 +10,9 @@ audio.context = new AudioContext();
 const shoot = new Audio(assets.path + "laserShoot.wav");
 shoot.volume = 0.15;
 
+const explode = new Audio(assets.path + "explosion.wav");
+shoot.volume = 0.25;
+
 audio.sounds = {
   rocket: { 
     loop: true,
@@ -21,7 +24,8 @@ audio.sounds = {
       noise.stop();
     }
   },
-  shoot: { play: () => { shoot.play(); }}
+  shoot: { play: () => { shoot.play(); }},
+  explode: { play: () => { explode.play(); }}
 };
 
 audio.play = function (sound, pitch, volume) {
