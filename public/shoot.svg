@@ -1,0 +1,8 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs></defs>
+  <ellipse style="fill: none; stroke-width: 40px; stroke: white;" cx="200" cy="200" rx="120" ry="120"></ellipse>
+  <line style="stroke: white; stroke-width: 40px; stroke-linecap: round; fill: none;" x1="200" y1="20" x2="200" y2="150"></line>
+  <line style="stroke: white; stroke-width: 40px; stroke-linecap: round; fill: none;" x1="200" y1="250" x2="200" y2="380"></line>
+  <line style="stroke: white; stroke-width: 40px; stroke-linecap: round; fill: none;" x1="250" y1="200" x2="380" y2="200"></line>
+  <line style="stroke: white; stroke-width: 40px; stroke-linecap: round; fill: none;" x1="20" y1="200" x2="150" y2="200"></line>
+</svg>
