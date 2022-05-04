@@ -33,6 +33,12 @@ body {
   margin: 0 auto;  
 }
 
+
+#left { bottom: 15vh; left: 15vw; transform: rotate(-90deg); }
+#right { bottom: 15vh; right: 15vw; transform: rotate(90deg); }
+#shoot { bottom: 30vh; left: 15vw; }
+#thrust { bottom: 30vh; right: 15vw; }
+
 .control {
   background-color: red;
   color: white;
@@ -47,7 +53,11 @@ body {
   display: none;
 }
 
-#left { bottom: 15vh; left: 15vw; }
-#right { bottom: 15vh; right: 15vw; }
-#shoot { bottom: 30vh; left: 15vw; }
-#thrust { bottom: 30vh; right: 15vw; }
+.control > img {
+  height: 60%;
+  width: 60%;
+  position: relative;
+  top: 20%;
+  transform: translateY(-20%);
+}
+

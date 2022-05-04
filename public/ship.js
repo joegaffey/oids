@@ -2,6 +2,7 @@ import Matter from "./lib/matter.js";
 import assets from "./assets.js";
 import settings from "./settings.js";
 import Utils from "./utils.js";
+import audio from "./audio.js";
 
 
 /**
@@ -13,7 +14,7 @@ import Utils from "./utils.js";
  * @param {number} height
  * @return {composite} A new ship
  */
-const Ship = function (xx, yy, width, height) {
+const Ship = function (world, xx, yy, width, height) {
   const Body = Matter.Body,
     Bodies = Matter.Bodies,
     Vector = Matter.Vector;
@@ -33,19 +34,37 @@ const Ship = function (xx, yy, width, height) {
   });
   ship.tForce = 0.0002;
   ship.rForce = 0.002;
+  ship.world = world;
+  
+  // @ToDo Make different textures for the ship rockets
+  // ship.makeTextures = () => {
+  //   const i = new Image();
+  //   i.src = assets.path + 'ship.png';
+  //   const ctx = new Canvas().getContext('2d');    
+  // };
   
   ship.thrust = () => {
     const forceVector = Vector.rotate({x: 0, y: -ship.tForce}, ship.angle);
     Body.applyForce(ship, {x: ship.position.x, y: ship.position.y}, forceVector);
+    ship.isThrust = true;
+    audio.play("rocket", 0.5, 0.5);
   };
   
   ship.left = () => {
     ship.torque -= ship.rForce;
+    ship.isLeft = true;
+    audio.play("rocket", 2, 0.2);
   };
   
   ship.right = () => {
     ship.torque += ship.rForce;
+    ship.isRight = true;
+    audio.play("rocket", 2, 0.2);
   };
+  
+  ship.stopRocket = () => {
+    audio.stop("rocket");
+  }
   
   const bullets = [];
   const fireForce = 0.02;  
@@ -69,7 +88,7 @@ const Ship = function (xx, yy, width, height) {
       },
     );
     bullets.push(bullet);
-    Matter.Composite.add(world, bullet);
+    Matter.Composite.add(ship.world, bullet);
     Matter.Body.applyForce(
       bullet, ship.position, {
         x: Math.cos(ship.angle - Math.PI / 2) * fireForce, 

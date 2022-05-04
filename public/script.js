@@ -1,6 +1,3 @@
-// @TODO Investigate problem with Car class structure using Matter
-// import Car from './Car.js';   
-
 import Matter from './lib/matter.js';
 import assets from './assets.js';
 import settings from './settings.js';
@@ -88,9 +85,9 @@ for(let i = 0; i < 20; i++) {
 // lunarTexture.src = assets.path + 'lunar.webp';
 
 
-const ship = new Ship(400, 300, 50, 50);
-
 engine.world.gravity.y = 0;
+
+const ship = new Ship(engine.world, 400, 300, 50, 50);
 
 // add all of the bodies to the world
 Composite.add(engine.world, asteroidBodies);
@@ -159,10 +156,13 @@ const leftButton = document.querySelector('#left');
 const rightButton = document.querySelector('#right');
 
 Events.on(runner, 'beforeTick', (event) => {
-  if(pressedKeys[87] || pressedKeys[38] || thrustButton.on) { ship.thrust(); };
-  if(pressedKeys[65] || pressedKeys[37] || leftButton.on) { ship.left(); };
-  if(pressedKeys[68] || pressedKeys[39] || rightButton.on) { ship.right(); };
-  if(pressedKeys[75] || pressedKeys[88] || shootButton.on) { ship.shoot(engine.world); };
+  if(pressedKeys[87] || pressedKeys[38] || thrustButton.on) { ship.thrust(); } else { ship.isThrust = false; };
+  if(pressedKeys[65] || pressedKeys[37] || leftButton.on) { ship.left(); } else { ship.isLeft = false; };
+  if(pressedKeys[68] || pressedKeys[39] || rightButton.on) { ship.right(); } else { ship.isRight = false; };
+  if(pressedKeys[90] || pressedKeys[75] || shootButton.on) { ship.shoot(engine.world); };
+  
+  if(!ship.isThrust && !ship.isLeft && !ship.isRight)
+    ship.stopRocket();
 });
 
 function setupButton(el) {
@@ -189,4 +189,33 @@ document.body.addEventListener("touchstart", () => {
 Events.on(render, 'beforeRender', () => {
   Bounds.shift(render.bounds, { x: ship.position.x - 400, y: ship.position.y - 300 });
   stars.update(ship.velocity.x, ship.velocity.y);
+});
+
+
+const burnImg = new Image();
+burnImg.src = 'arrow.svg';
+const ctx = render.canvas.getContext('2d');  
+
+Events.on(render, 'afterRender', () => {
+  if(ship.isThrust) {
+    ctx.save();
+    ctx.translate(400, 300);
+    ctx.rotate(ship.angle + Math.PI -0.05 + Math.random() * 0.1);
+    ctx.drawImage(burnImg, -10, -32, 20, 20);
+    ctx.restore();
+  }
+  if(ship.isRight) {
+    ctx.save();
+    ctx.translate(400, 300);
+    ctx.rotate(ship.angle - Math.PI / 2 -0.025 + Math.random() * 0.05);
+    ctx.drawImage(burnImg, 15, -15, 10, 10);
+    ctx.restore();
+  }  
+  if(ship.isLeft) {
+    ctx.save();
+    ctx.translate(400, 300);
+    ctx.rotate(ship.angle + Math.PI / 2 -0.025 + Math.random() * 0.05);
+    ctx.drawImage(burnImg, -25, -15, 10, 10);
+    ctx.restore();
+  } 
 });
