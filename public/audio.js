@@ -7,11 +7,15 @@ audio.context = new AudioContext();
 // Alt rocket 
 
 //https://sfxr.me/#57uBnWac5Rm6wd7SPKxVKC2PvcLVeRGRdyAC5szhErMUAtkGuet3Df4b52yenphXojG65cM79npuysMzw5GBcjaZQVZE3WcnVxZuxuCqeg7bMB2KU3CeUUoHZ
-const shoot = new Audio(assets.path + "laserShoot.wav");
+const shoot = new Audio(assets.path + "laserShoot.mp3");
 shoot.volume = 0.15;
+shoot.preload = 'auto';
+shoot.load();
 
-const explode = new Audio(assets.path + "explosion.wav");
-shoot.volume = 0.25;
+const explode = new Audio(assets.path + "explosion.mp3");
+explode.volume = 0.25;
+explode.preload = 'auto';
+explode.load();
 
 audio.sounds = {
   rocket: { 
@@ -24,11 +28,23 @@ audio.sounds = {
       noise.stop();
     }
   },
-  shoot: { play: () => { shoot.play(); }},
-  explode: { play: () => { explode.play(); }}
+  shoot: { 
+    play: () => { 
+      const snd = shoot.cloneNode();
+      snd.volume = shoot.volume;
+      snd.play(); 
+    }
+  },
+  explode: { 
+    play: () => { 
+      const snd = explode.cloneNode();
+      snd.volume = explode.volume;
+      snd.play();
+    }}
 };
 
 audio.play = function (sound, pitch, volume) {
+  audio.init();
   if(!audio.sounds[sound].loop || !audio.sounds[sound].isPlaying) {
     audio.sounds[sound].isPlaying = true;
     audio.sounds[sound].play(pitch, volume);
@@ -175,18 +191,20 @@ function gain(level) {
 //   drum(fill_hihat, {a: 0.0, d: 0.0, s: 0.15, r: 0.2, sustain: 0.8});
 // }
 
+let buffer = null;
+
 function make_buffer(fill, env) {
   var count = audio.context.sampleRate * 2;
-  var buffer = audio.context.createBuffer(1, count, audio.context.sampleRate);
-
-  var data = buffer.getChannelData(0 /* channel */);
-  var state = {};
-  var prev_random = 0.0;
-  for (var i = 0; i < count; i++) {
-    var t = i / audio.context.sampleRate;
-    data[i] = fill(t, env, state);
+  if(!buffer) {
+    buffer = audio.context.createBuffer(1, count, audio.context.sampleRate);
+    var data = buffer.getChannelData(0 /* channel */);
+    var state = {};
+    var prev_random = 0.0;
+    for (var i = 0; i < count; i++) {
+      var t = i / audio.context.sampleRate;
+      data[i] = fill(t, env, state);
+    }
   }
-
   var source = audio.context.createBufferSource();
   source.buffer = buffer;
   return source;
