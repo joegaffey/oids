@@ -66,6 +66,10 @@ const Ship = function (world, xx, yy, width, height) {
     audio.stop("rocket");
   }
   
+  ship.laser = () => {
+    ship.laserOn = true;
+  }
+  
   const bullets = [];
   const fireForce = 0.02;  
   const cooldown = 150;

@@ -33,8 +33,9 @@ const Engine = Matter.Engine,
   Composites = Matter.Composites,
   Vector = Matter.Vector,
   Events = Matter.Events,
-  Mouse = Matter.Mouse,
-  MouseConstraint = Matter.MouseConstraint,
+  // Mouse = Matter.Mouse,
+  // MouseConstraint = Matter.MouseConstraint,
+  Query = Matter.Query,
   Bounds = Matter.Bounds;
 
 const containerEl = document.querySelector('#matter');
@@ -162,6 +163,10 @@ Events.on(runner, 'beforeTick', (event) => {
   if(pressedKeys[65] || pressedKeys[37] || leftButton.on) { ship.left(); } else { ship.isLeft = false; };
   if(pressedKeys[68] || pressedKeys[39] || rightButton.on) { ship.right(); } else { ship.isRight = false; };
   if(pressedKeys[90] || pressedKeys[75] || shootButton.on) { ship.shoot(engine.world); };
+  if(pressedKeys[88]) 
+    ship.laserOn = true; 
+  else 
+    ship.laserOn = false;
   
   if(!ship.isThrust && !ship.isLeft && !ship.isRight)
     ship.stopRocket();
@@ -222,6 +227,15 @@ Events.on(render, 'afterRender', () => {
   } 
   
   updateExplosions();
+  
+//   ctx.beginPath();
+//   ctx.lineWidth = 15;
+//   ctx.strokeStyle = 'blue';
+
+//   ctx.moveTo(0, 0);
+//   ctx.lineTo(100, 100);
+//   ctx.stroke();
+
 });
 
 ////////////////////////////////////////////////////////////////
@@ -256,3 +270,107 @@ function exlodeBody(body) {
   Composite.remove(engine.world, body);
   audio.play("explode");
 }
+
+
+function line_intersect(x1, y1, x2, y2, x3, y3, x4, y4)
+{
+    var ua, ub, denom = (y4 - y3)*(x2 - x1) - (x4 - x3)*(y2 - y1);
+    if (denom == 0) {
+        return null;
+    }
+    ua = ((x4 - x3)*(y1 - y3) - (y4 - y3)*(x1 - x3))/denom;
+    ub = ((x2 - x1)*(y1 - y3) - (y2 - y1)*(x1 - x3))/denom;
+    return {
+        x: x1 + ua * (x2 - x1),
+        y: y1 + ua * (y2 - y1),
+        seg1: ua >= 0 && ua <= 1,
+        seg2: ub >= 0 && ub <= 1
+    };
+}
+
+Events.on(engine, 'afterUpdate', function() {
+  if(ship.laserOn) {
+    const bodies = Composite.allBodies(engine.world);
+
+
+    const distance = 200;
+    const x1 = ship.position.x - render.bounds.min.x;
+    const y1 = ship.position.y - render.bounds.min.y;
+    const x2 = Math.round(Math.cos(ship.angle - Math.PI / 2) * distance + x1);
+    const y2 = Math.round(Math.sin(ship.angle - Math.PI / 2) * distance + y1);
+
+    ctx.beginPath();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = 'red';
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    
+    const endPoint = { 
+      x: Math.round(Math.cos(ship.angle - Math.PI / 2) * distance + ship.position.x),
+      y: Math.round(Math.sin(ship.angle - Math.PI / 2) * distance + ship.position.y)
+    }; 
+    
+    const collisions = Query.ray(bodies, ship.position, endPoint);   
+   
+    collisions.forEach(c => {
+      
+      let point = null;
+      
+      if(c.body.label === "oid") {
+        console.log(c)
+        
+        // console.log(c.body.points.length)
+        c.body.points.forEach((p, i) => {
+          // console.log(p)
+          // console.log(i)
+          let tPoint = null;
+          if(i + 1 < c.body.points.length) {
+            
+            const x1 = c.body.points[i].x + c.body.position.x;
+            const y1 = c.body.points[i].y + c.body.position.y;
+            const x2 = c.body.points[i + 1].x + c.body.position.x; 
+            const y2 = c.body.points[i + 1].y + c.body.position.y;
+            
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = 'yellow';
+            ctx.beginPath();
+            ctx.moveTo(x1 - render.bounds.min.x, y1 - render.bounds.min.y);
+            ctx.lineTo(x2 - render.bounds.min.x, y2 - render.bounds.min.y);
+            ctx.stroke();
+            
+            tPoint = line_intersect(x1, 
+                                   y1, 
+                                   x2, 
+                                   y2, 
+                                   c.body.position.x,
+                                   c.body.position.y,
+                                   ship.position.x, 
+                                   ship.position.y);
+            if(tPoint && tPoint.seg1 || tPoint.seg2) {
+              console.log(tPoint)
+              if(!point)
+                point = tPoint;
+            }
+          }
+        })
+        
+        
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = 'blue';
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(c.body.position.x - render.bounds.min.x, c.body.position.y - render.bounds.min.y);
+        ctx.stroke();
+        ctx.strokeStyle = 'green';
+        ctx.beginPath();
+        const cx = point.x - render.bounds.min.x;
+        const cy = point.y - render.bounds.min.y;
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(c.body.position.x - render.bounds.min.x + cx, 
+                   c.body.position.x - render.bounds.min.y + cy);
+        ctx.stroke();
+      }
+    });
+  }    
+});
