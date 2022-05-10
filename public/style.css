@@ -18,19 +18,21 @@ body {
 #matter > canvas {
   background-color: transparent;
   display: block;
-  margin: 0 auto;
+  margin: 0;
+  height: 100%;
 }
 
 #stars {
   z-index: -9999;
   display: block;
   position: fixed;
-  top: 0;
+  height: 100%;
+/*   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 0; */
   background-color: #121212;
-  margin: 0 auto;  
+  margin: 0;  
 }
 
 

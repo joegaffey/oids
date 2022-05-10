@@ -1,4 +1,5 @@
 export default class Stars {
+  
   constructor(count, ctx) {
     this.count = count;
     this.ctx = ctx;
@@ -21,7 +22,7 @@ export default class Stars {
   
   placeStar(star) {
     star.x = Math.floor(Math.random() * this.ctx.canvas.width);
-    star.y = Math.floor(Math.random() * this.ctx.canvas.width);
+    star.y = Math.floor(Math.random() * this.ctx.canvas.height);
   }
   
   update(x, y) {

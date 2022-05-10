@@ -14,14 +14,14 @@ import audio from "./audio.js";
  * @param {number} height
  * @return {composite} A new ship
  */
-const Ship = function (world, xx, yy, width, height) {
+const Ship = function (world, x, y, width, height, vertScale) {
   const Body = Matter.Body,
     Bodies = Matter.Bodies,
     Vector = Matter.Vector;
   
   const verts = [{"x":0,"y":20},{"x":0,"y":15},{"x":5,"y":15},{"x":5,"y":5},{"x":8,"y":0},{"x":12,"y":0},{"x":12,"y":5},{"x":15,"y":12},{"x":20,"y":15},{"x":20,"y":20},{"x":15,"y":18},{"x":10,"y":15},{"x":5,"y":20}];
     
-  const ship = Bodies.fromVertices(xx, yy, Utils.scaleVerts(verts, 1.8), { 
+  const ship = Bodies.fromVertices(x, y, Utils.scaleVerts(verts, vertScale), {
     label: 'ship',
     frictionAir: settings.FICTION_AIR,
     render: {
