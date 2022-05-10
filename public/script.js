@@ -7,6 +7,10 @@ import asteroids from './asteroids.js';
 import Utils from './utils.js';
 import audio from './audio.js';
 
+
+const starsCanvas = document.querySelector('#stars');
+const stars = new Stars(300, starsCanvas.getContext('2d'));
+
 // https://blog.bullgare.com/2019/03/simple-way-to-detect-browsers-fps-via-js/
 let fps;
 let times = [];
@@ -43,6 +47,7 @@ const containerEl = document.querySelector('#matter');
 // create an engine
 const engine = Engine.create();
 engine.timing.isFixed = false;
+engine.world.gravity.y = 0;
 
 // Calculate and set physics rate
 setInterval(() => {
@@ -57,6 +62,48 @@ const render = Render.create({
   engine: engine,
   options: settings.CONTAINER_OPTIONS
 });
+
+///////////////////////// View mgt ////////////////////////////
+
+let width = 0, height = 0;
+
+function resize() {
+  
+  width = Math.round(window.innerWidth);
+  height = Math.round(window.innerHeight); 
+      
+  render.canvas.width = width;
+  render.canvas.height = height;
+  
+  render.canvas.style.width = width + 'px';
+  render.canvas.style.height = height + 'px';
+  
+  render.options.width = width; 
+  render.options.height = height;
+  
+  render.bounds.max.x = render.bounds.min.x + width;
+  render.bounds.max.y = render.bounds.min.y + height;
+  
+  starsCanvas.width = width;
+  starsCanvas.height = height;
+  
+  starsCanvas.style.width = width + 'px';
+  starsCanvas.style.height = height + 'px';
+  
+  stars.init();
+}
+
+document.addEventListener('visibilitychange', event => {
+  if (document.visibilityState === 'visible') {
+  } else {
+    // @TODO Add pause
+  }
+})
+
+window.onresize = resize;
+resize();
+
+////////////////////////////////  Bodies setup
 
 const asteroidBodies = [];
 
@@ -96,13 +143,15 @@ function makeAsteroid(x, y, size) {
 // lunarTexture.src = assets.path + 'lunar.webp';
 
 
-engine.world.gravity.y = 0;
-
-const ship = new Ship(engine.world, 400, 300, 50, 50);
+const ship = new Ship(engine.world, width, height / 2, 50, 50, 1.8);
 
 // add all of the bodies to the world
 Composite.add(engine.world, asteroidBodies);
 Composite.add(engine.world, ship);
+
+
+////////////////////////  Render/Runner init
+
 
 // run the renderer
 Render.run(render);
@@ -114,40 +163,6 @@ runner.isFixed = true;
 // run the engine
 Runner.run(runner, engine);
 
-const starsCanvas = document.querySelector('#stars')
-const stars = new Stars(300, starsCanvas.getContext('2d'));
-
-///////////////////////// View mgt ////////////////////////////
-
-
-function resize() {
-  let w, h;
-  if (window.innerWidth >= window.innerHeight * settings.SCREEN_RATIO) {
-    w = window.innerHeight * settings.SCREEN_RATIO;
-    h = window.innerHeight;
-  } 
-  else {
-    w = window.innerWidth;
-    h = window.innerWidth / settings.SCREEN_RATIO;
-  }
-  render.canvas.style.width = w + 'px';
-  render.canvas.style.height = h + 'px';
-  
-  starsCanvas.width = w;
-  starsCanvas.height = h;
-  
-  stars.init();
-}
-
-document.addEventListener('visibilitychange', event => {
-  if (document.visibilityState === 'visible') {
-  } else {
-    // @TODO Add pause
-  }
-})
-
-window.onresize = resize;
-resize();
 
 //////////////////// Input /////////////////////////////////////
 
@@ -202,7 +217,7 @@ document.body.addEventListener("touchstart", () => {
 
 
 Events.on(render, 'beforeRender', () => {
-  Bounds.shift(render.bounds, { x: ship.position.x - 400, y: ship.position.y - 300 });
+  Bounds.shift(render.bounds, { x: ship.position.x - width / 2, y: ship.position.y - height / 2 });
   stars.update(ship.velocity.x * 0.75, ship.velocity.y * 0.75);
 });
 
@@ -212,23 +227,26 @@ burnImg.src = 'arrow.svg';
 const ctx = render.canvas.getContext('2d');  
 
 Events.on(render, 'afterRender', () => {
+  const w = Math.round(width / 2);
+  const h = Math.round(height / 2);
+   
   if(ship.isThrust) {
     ctx.save();
-    ctx.translate(400, 300);
+    ctx.translate(w, h);
     ctx.rotate(ship.angle + Math.PI -0.05 + Math.random() * 0.1);
     ctx.drawImage(burnImg, -10, -32, 20, 20);
     ctx.restore();
   }
   if(ship.isRight) {
     ctx.save();
-    ctx.translate(400, 300);
+    ctx.translate(w, h);
     ctx.rotate(ship.angle - Math.PI / 2 -0.025 + Math.random() * 0.05);
     ctx.drawImage(burnImg, 15, -15, 10, 10);
     ctx.restore();
   }  
   if(ship.isLeft) {
     ctx.save();
-    ctx.translate(400, 300);
+    ctx.translate(w, h);
     ctx.rotate(ship.angle + Math.PI / 2 -0.025 + Math.random() * 0.05);
     ctx.drawImage(burnImg, -25, -15, 10, 10);
     ctx.restore();
